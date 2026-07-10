@@ -20,8 +20,10 @@ Depth lives in sibling reference files — read the relevant one for the task:
 
 - **Package manager: npm.** Backend: **Node + Express 5 + Mongoose**. **No automated tests** unless asked.
 - **Spelling split by layer:** US spelling in code identifiers (`normalize`, `color`); British spelling in
-  English user-facing copy (`authorise`, `colour`). User-facing copy language follows the audience —
-  Japanese for JP-facing projects, English otherwise. Comments/JSDoc are always English.
+  English user-facing copy (`authorise`, `colour`). Comments/JSDoc are always English.
+- **Copy language follows the audience.** Detect it from the project — existing UI copy, an `i18n`/locale
+  config, or an explicit steer. In an existing codebase, match the copy language already there. When
+  greenfield or unknown, default to English and confirm before assuming Japanese.
 
 ## Universal idioms
 

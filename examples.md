@@ -20,13 +20,17 @@ router.get('/:filter/:sort', async (req, res) => {
     throwHttpError(httpErrors.badRequest, null, res);
     return;
   }
+  const limit = Number(req.query.limit) || 30;
   const rows = await statsCollection.find({}).where('totalRecords').gte(5)
-    .skip(page * limit).limit(limit + 1).sort({ [sortBy]: -1 })
+    .skip(page * limit).limit(limit + 1).sort({ [sortBy]: -1 })   // fetch one extra to detect a next page
     .populate('user', 'displayName username').lean();
-  res.json({ items: rows, currentPage: page, hasMore });
+  const hasMore = rows.length > limit;
+  res.json({ items: hasMore ? rows.slice(0, limit) : rows, currentPage: page, hasMore });
 });
 export { router as statsController };
 ```
+Write responses: return the affected document with `res.json(doc)` (a bare `res.sendStatus(204)` is also
+seen for pure deletes); `res.status(201)` is optional and used inconsistently — match the neighbouring file.
 
 ## 2. Mongoose model (`*.collection.ts`)
 ```ts
@@ -127,7 +131,9 @@ export const AccountApi = {
   query: {
     useGetAccount: () => useQuery<User, ApiError>({
       queryKey: [AccountApi.key.account],
-      queryFn: async () => (await ApiClient.request('get', '/account').catch(() => null)) as User
+      // let errors propagate so `query.isError` fires; only soften with `.catch(() => null)`
+      // in the rare case where a failed fetch should degrade to empty, not an error state
+      queryFn: async () => (await ApiClient.request('get', '/account')) as User
     })
   },
   mutate: {

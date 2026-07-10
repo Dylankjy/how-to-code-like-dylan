@@ -26,7 +26,7 @@ export const AccountApi = {
     useGetAccount: () =>
       useQuery<User, ApiError>({
         queryKey: [AccountApi.key.account],
-        queryFn: async () => (await ApiClient.request('get', '/account').catch(() => null)) as User
+        queryFn: async () => (await ApiClient.request('get', '/account')) as User
       })
   },
   mutate: {
@@ -46,6 +46,10 @@ export const AccountApi = {
 - queryKeys are flat arrays keyed off `Api.key.*`. Pagination uses `useInfiniteQuery`
   (`initialPageParam: 0` + `getNextPageParam`).
 - Client defaults: `staleTime: 5000, retry: 0, refetchOnWindowFocus: false`.
+- Let `queryFn` errors **propagate** so `query.isError` fires; use `.catch(() => null)` only as a
+  deliberate, localized soften when a failed fetch should degrade to empty rather than an error state.
+- Self-scoped reads hit the bare route (`/account` = "me"); only thread an id into the URL when acting
+  on another entity.
 
 ## Forms — formik + yup
 
@@ -53,7 +57,8 @@ Schema as a **PascalCase const** (`LoginSchema = object().shape({...})`) with me
 language. `useFormik<InferType<typeof Schema>>({ validateOnBlur: false, validateOnChange: false,
 validationSchema })`. `onSubmit` calls a `mutateAsync` from the Api hook and narrows errors
 (`error instanceof AxiosError`) into `formik.setErrors`. `TextField` binds `value`, `error`, `helperText`,
-`onChange={formik.handleChange}`.
+`onChange={formik.handleChange}`. For an **edit-existing** form seeded from a query that resolves after
+mount, set `enableReinitialize: true` so the fetched value populates the field.
 
 ## State
 

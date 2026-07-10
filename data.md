@@ -5,8 +5,8 @@ Data-layer fingerprint from the developer's real Node/Express/Mongoose backends.
 ## Mongoose schemas / models
 
 - `new Schema<DocInterface>({...}, { timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' } })` —
-  typed off an imported domain interface (e.g. `IUser`, `IOrder`); `export default model('snake_case', Schema)`
-  as the last line.
+  typed off an imported domain interface (e.g. `IUser`, `IOrder`, kept in `types/` and imported with `.js`);
+  `export default model('snake_case', Schema)` as the last line.
 - Field defs are verbose objects: `{ type, required, min/maxLength, unique, index, enum, default }`. Closed
   sets as `enum: ['Good', 'Bad', 'VeryBad', 'Bonus']`. Inline sub-schemas with `{ _id: false }`.
 - **Indexes:** field-level `index: true`, plus compound uniqueness via
@@ -46,7 +46,9 @@ Schemas live **inline in the controller**, above the handlers.
 - `httpErrors` is an object literal of status presets (`badRequest`, `unauthorized`, `notFound`, …) plus
   `serverError: (error) => ({...})`.
 - `Reason` is a **real `enum`** with snake_case string values (`LoginRequired = 'login_required'`) — the
-  one sanctioned `enum` use (closed value sets are otherwise string-union literals).
+  one sanctioned `enum` use (closed value sets are otherwise string-union literals). It is **per-project**:
+  add members to the error utils as new failure cases arise (e.g. `NotFound`, `MissingOrInvalidFields`);
+  pass `null` when no specific reason fits.
 - `throwHttpError(error, reason?, res?)`: with `res` it does `res.status(x).json(error)` and returns;
   without `res` it throws (for the service layer). **Always followed by a bare `return;`.**
 - Global `errorHandler(error, _req, res, _next)` normalizes `SyntaxError`/unknown → serverError, logs
