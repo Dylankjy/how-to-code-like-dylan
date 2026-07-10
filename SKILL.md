@@ -1,5 +1,5 @@
 ---
-name: coding-style
+name: code-style-like-dylan
 description: Use when writing, reviewing, or scaffolding code (TypeScript, React, Node/Express, Mongoose, or C#) and it should match this developer's established conventions — naming, file/folder structure, exports, types, error handling, data layer, UI patterns, and commit style. Applies across any project, not one specific repo.
 ---
 
